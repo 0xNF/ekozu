@@ -9,7 +9,10 @@ import collectAverages
 
 
 #in: 
-#   process.py /path/to/videos /path/to/OSTs
+#   process.py [-h | -p] /path/to/videos /path/to/OSTs
+#   -h      :      help. Ignores all other inputs
+#   -p      :      keeps all output folders ( warning: storage intensive. Typically equivalent to 30x audiotrack size, i.e., a 129mb => 3.8gb )
+
 #out:
 #   ./[series-name]/episodes/[episode-xx]/timings.txt                     #the final output, a list of timimgs for each song in the given episode
 #   ./[series-name]/episodes/[episode-xx]/[episode-xx].[format]           #The raw audio ripped from the given video file via ffmpeg
