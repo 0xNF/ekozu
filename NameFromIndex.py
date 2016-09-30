@@ -7,8 +7,14 @@ from sys import argv
 fmaps = {
     "r1":"/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/tracepaths/r1_tracks_1.json",
     "r2":"/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/tracepaths/r2_tracks_1.json",
+    #r1
+    "r1Ost1":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OST1_song_results.json',
+    "r1Ost2":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OST2_song_results.json',
+    "r1OpEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OpEdInserts_song_results.json',
+    #r2
     "r2OpsEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OpEdInserts_song_results.json',
-    "r1_test":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OpEdInserts_song_results.json'
+    "r2Ost1":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OST1_song_results.json',
+    "r2Ost2":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OST2_song_results.json'
     }
 
 def mergeIndexs(indexs):

@@ -14,8 +14,7 @@ def sortJson(jobj, cmp, key):
 
 def loadJsonFromFile(file):
     with open(file, 'r') as f:
-        jstring = "".join(f.readlines())
-        js = json.loads(jstring)
+        js = json.load(f)
     return js
 
 #Natural sorting utility section

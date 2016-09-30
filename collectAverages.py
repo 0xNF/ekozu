@@ -3,6 +3,7 @@
 import argparse
 import json
 import datetime
+from AIUtils import loadJsonFromFile
 from NameFromIndex import\
     fmaps, NameFromIndex
 from echoprint_server import \
@@ -37,17 +38,8 @@ def dostuff(startTime, duration, jaccard=True, setInt=True, sinfl=True):
         jaccard_sums, jaccard_freqs = makeSumsAndFrequencies(jaccard_Scores, total_frequencies)
         retDict["jaccards"] = jaccard_sums
         retDict["jaccard_frequent"] = jaccard_freqs
-
     return retDict
 
-#utility and boiler functions
-def loadEchoPrints(fname):
-    with open(fname) as f:
-        contents = f.readlines()
-        c = "".join(contents)
-        j = json.loads(c)
-    return j
-    
 def makeSumsAndFrequencies(scores, totalFrequencies):
     sums = {}
     frequencies = {}
@@ -123,16 +115,26 @@ def confidenceMap(qtype):
     return confidence
 #Main
 def main():
+    #TODO - getTimeChunk won't work for the 60 second splits with 5 second intervals
     #load the episodes echoprints
     global episodePrints
-    episodePrints = loadEchoPrints('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/prints/prints.json')
+    episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/prints/prints.json')
+    #episodePrints605 = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/splits60-5/prints.json')
     #Get the index
     index_r1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r1_index.bin'
     index_r2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r2_index.bin'
+    #r2
     r2OpsEds = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OpEdInserts_index.bin'
+    r2Ost1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OST1_index.bin'
+    r2Ost2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OST2_index.bin'
+    #r1
+    r1OpsEds = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR1OpEdInserts_index.bin'
+    r1Ost1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR1OST1_index.bin'
+    r1Ost2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR1OST2_index.bin'
+
     global inverted_index
     #inverted_index = load_inverted_index([index_r2,index_r1])
-    inverted_index = load_inverted_index([r2OpsEds])
+    inverted_index = load_inverted_index([r2Ost2, r2Ost1, r2OpsEds, r1Ost1, r1Ost2])
 
     #formatting vars
     durationPerChunk = 30
@@ -152,7 +154,7 @@ def main():
             formed = form.format(first,"","")
         else:
             #second = NameFromIndex([fmaps["r2"],fmaps["r1"]], value[0][0], fullPath=False)
-            second = NameFromIndex([fmaps["r2OpsEds"]], value[0][0], fullPath=False)
+            second = NameFromIndex([fmaps["r2Ost2"], fmaps["r2Ost1"], fmaps["r2OpsEds"], fmaps["r1Ost1"], fmaps["r1Ost2"]], value[0][0], fullPath=False)
             formed = form.format(first.ljust(15),second.ljust(55),third)
         songsByTheChunk.append(formed)
     print("\n".join(songsByTheChunk))

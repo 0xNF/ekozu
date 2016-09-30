@@ -55,11 +55,10 @@ def ripAudio(Videos):
         sys.stdout.flush() 
         subprocess.check_output(args)
     print("Ripping Audio...Done!".format(str(idx+1), str(len(fs))))
-    sys.stdout.flush() 
+    sys.stdout.flush()
     
 def makeSplits(Videos):
-    "NYI"
-    print ("Ripping audio")
+    print ("Making Video Splits")
     return 0
 
 def makeEpisodePrints(Videos):
@@ -134,7 +133,7 @@ def main():
     #arg parsing
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', "--persist", action="store_true",help="Whether to keep all generated files and folder structure after script completes")
-    parser.add_argument('series', help="The name of the series")
+    parser.add_argument('series', help="The name of the series") 
     parser.add_argument("videos", type=str, help="Path to the video files")
     parser.add_argument("osts", type=str, help="Path to the OST files")
     args = parser.parse_args()
@@ -145,9 +144,9 @@ def main():
     TRACESDIR = os.path.join(BASEDIR, "tracepaths")
     INDEXDIR = os.path.join(BASEDIR, "indexes")
     
-    makeFolders(args.series)
-    #makeIndexes(args.osts)
-    ripAudio(args.videos)
+    #makeFolders(args.series)
+    makeIndexes(args.osts)
+    #ripAudio(args.videos)
     return 0
 
 if __name__ == "__main__":
