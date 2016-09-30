@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 import json
-import os
+import os,sys
 import shutil
 import argparse
 import NameFromIndex
@@ -37,8 +38,28 @@ CWD = os.getcwd()
 #2. make episode splits (1 per episode in VideosDir)
 #3. make episode prints (1 per split from previous step)
 #4. scan for data
+
+def ripAudio(Videos):
+    print("Ripping Audio", end='\r')
+    fs = []
+    for root,dirs,files in os.walk(Videos):
+        for file in files:
+            fs.append(os.path.join(root, file))
+    for idx,val in enumerate(fs):
+        p = os.path.join(EPISODESDIR, os.path.basename(val))
+        audiopath = os.path.join(p, "AudioTrack.flac")
+        os.makedirs(p)
+        #ffmpeg -i InputVideo.mkv -vn -acodec copy AudioTrack.flac
+        args = ("ffmpeg", "-loglevel", "quiet", "-i", val, "-vn", "-acodec", "copy", audiopath) 
+        print("Ripping Audio...{0} of {1}".format(str(idx+1), str(len(fs))), end='\r')
+        sys.stdout.flush() 
+        subprocess.check_output(args)
+    print("Ripping Audio...Done!".format(str(idx+1), str(len(fs))))
+    sys.stdout.flush() 
+    
 def makeSplits(Videos):
     "NYI"
+    print ("Ripping audio")
     return 0
 
 def makeEpisodePrints(Videos):
@@ -125,7 +146,8 @@ def main():
     INDEXDIR = os.path.join(BASEDIR, "indexes")
     
     makeFolders(args.series)
-    makeIndexes(args.osts)
+    #makeIndexes(args.osts)
+    ripAudio(args.videos)
     return 0
 
 if __name__ == "__main__":
