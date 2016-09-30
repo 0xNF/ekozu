@@ -2,14 +2,22 @@
 # encoding: utf-8
 import json
 import os
+import shutil
 import argparse
 import NameFromIndex
 import RollingSplit
 import collectAverages
+from subprocess import Popen, PIPE
+import subprocess
+from AIUtils import \
+    sortJson, loadJsonFromFile, natural_key
+from echoprint_server import \
+    load_inverted_index, query_inverted_index, \
+    parsed_code_streamer, parsing_code_streamer, \
+    create_inverted_index, decode_echoprint
 
 #Constants
 CWD = os.getcwd()
-
 
 #in: 
 #   process.py [-h] [-p] /path/to/videos /path/to/OSTs
@@ -25,31 +33,99 @@ CWD = os.getcwd()
 #   ./[series-name]/indexes/                                              #indexes from the OSTs - one per folder/zip file found in the OSTs location
 
 
-#1. Make dirs
-#2. OSTs:
-#   a. For each OST directory, create an index with echoprint-codegen -> decode -> inverted index 
+#1. Make OST indexes (1 per folder in OSTDir)
+#2. make episode splits (1 per episode in VideosDir)
+#3. make episode prints (1 per split from previous step)
+#4. scan for data
+def makeSplits(Videos):
+    "NYI"
+    return 0
 
-def makeFolders():
-    seriesName = "Code Geass"
-    baseDir = os.path.join(CWD,seriesName)
-    epsiodesDir = os.path.join(baseDir, "episodes")
-    tracesDir = os.path.join(baseDir, "tracepaths")
-    indexDir = os.path.join(baseDir, "indexes")
-    os.makedirs(indexDir)
-    os.makedirs(tracesDir)
-    os.makedirs(epsiodesDir)
+def makeEpisodePrints(Videos):
+    "NYI"
+    "Call out to MakePrints.py"
+    return 0
 
+def makeIndexes(Osts):
+    print("Creating Indexes")
+    for path,dirs,files in os.walk(Osts):
+        for dir in dirs:
+            print("Preparing " + dir)
+            OSTDir = os.path.join(path,dir)
+            songlistFile = os.path.join(TRACESDIR, dir.replace(' ', '')+"_song_list.txt")
+            indexFile = os.path.join(INDEXDIR, dir.replace(' ', '')+"_index.bin")
+            tmpFile = os.path.join(TRACESDIR, dir.replace(' ','')+"_song_results.json")
+            songs = []
+            for root,dirs,files in os.walk(OSTDir):
+                    for file in files:                        
+                        songs.append(os.path.join(root,file))
+            #Echoprint-codegen -s < song_list.txt > song_results.json
+            f_name = dir.replace(' ','')+"_song_results.json"            
+            makePrints(songs, os.path.join(path,dir), outName=f_name, outDir=TRACESDIR)
 
+            #purge songs that coudln't be decoded..
+            #... NYI ...
+            
+            #Sort song_codes by file name
+            sortByFilename(os.path.join(TRACESDIR, f_name))
+            #Load codes
+            print("Decoding songs")
+            js = loadJsonFromFile(os.path.join(TRACESDIR, f_name))
+            withCode_A = [decode_echoprint(str(x["code"]))[1] for x in js if "code" in x]
+            codes = []
+            for codelist in withCode_A:
+                sList = []
+                for code in codelist:
+                    sList.append(str(code))
+                codes.append(",".join(sList))
+            print("Creating index at" + indexFile)  
+            create_inverted_index(parsed_code_streamer(codes), indexFile)
+    print("Finished creating indexes")
 
+#Utility Functions
+def makeFolders(series):
+    shutil.rmtree(BASEDIR, ignore_errors=True)
+    os.makedirs(INDEXDIR)
+    os.makedirs(TRACESDIR)
+    os.makedirs(EPISODESDIR)
+
+def makePrints(songsList, inDir, outName="prints.json", outDir=os.getcwd()):
+    outFile = os.path.join(outDir, outName)
+    songlistFile = os.path.join(outDir, os.path.basename(inDir).replace(' ', '')+"_song_list.txt")
+    with open(songlistFile, 'w') as f:
+       for trackSplit in songsList:
+           f.write(trackSplit + "\n")
+    args = ("echoprint-codegen", "-s")
+    f_out = open(outFile,'w')
+    f_in = open(songlistFile, 'r')
+    subprocess.call(args, stdin=f_in, stdout=f_out)
+    f_out.close()
+    f_in.close()
+
+def sortByFilename(file):
+    #Sort by filename and push back to disk
+    js = sortJson(loadJsonFromFile(file), cmp=natural_key, key=lambda x: x["metadata"]["filename"])
+    with open(file, 'w') as f:
+        json.dump(js, f)
+
+#Main
 def main():
     #arg parsing
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', "--persist", action="store_true",help="Whether to keep all generated files and folder structure after script completes")
+    parser.add_argument('series', help="The name of the series")
     parser.add_argument("videos", type=str, help="Path to the video files")
     parser.add_argument("osts", type=str, help="Path to the OST files")
     args = parser.parse_args()
-    
 
+    global BASEDIR, EPISODESDIR, TRACESDIR, INDEXDIR
+    BASEDIR = os.path.join(CWD,args.series)
+    EPISODESDIR = os.path.join(BASEDIR, "episodes")
+    TRACESDIR = os.path.join(BASEDIR, "tracepaths")
+    INDEXDIR = os.path.join(BASEDIR, "indexes")
+    
+    makeFolders(args.series)
+    makeIndexes(args.osts)
     return 0
 
 if __name__ == "__main__":

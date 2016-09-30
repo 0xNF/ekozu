@@ -129,8 +129,10 @@ def main():
     #Get the index
     index_r1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r1_index.bin'
     index_r2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r2_index.bin'
+    r2OpsEds = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OpEdInserts_index.bin'
     global inverted_index
-    inverted_index = load_inverted_index([index_r2,index_r1])
+    #inverted_index = load_inverted_index([index_r2,index_r1])
+    inverted_index = load_inverted_index([r2OpsEds])
 
     #formatting vars
     durationPerChunk = 30
@@ -149,7 +151,8 @@ def main():
         if(third < confidenceMap(whichToGet)):
             formed = form.format(first,"","")
         else:
-            second = NameFromIndex([fmaps["r2"],fmaps["r1"]], value[0][0], fullPath=False)
+            #second = NameFromIndex([fmaps["r2"],fmaps["r1"]], value[0][0], fullPath=False)
+            second = NameFromIndex([fmaps["r2OpsEds"]], value[0][0], fullPath=False)
             formed = form.format(first.ljust(15),second.ljust(55),third)
         songsByTheChunk.append(formed)
     print("\n".join(songsByTheChunk))

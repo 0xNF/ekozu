@@ -12,6 +12,12 @@ def sortJson(jobj, cmp, key):
     cmp = cmp if cmp != None else natural_key
     return sorted(jobj, cmp=cmp, key=key, reverse=False)
 
+def loadJsonFromFile(file):
+    with open(file, 'r') as f:
+        jstring = "".join(f.readlines())
+        js = json.loads(jstring)
+    return js
+
 #Natural sorting utility section
 def __nat_alphaNumkey():
     convert = lambda text: int(text) if text.isdigit() else text.lower() 
