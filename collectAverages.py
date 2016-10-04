@@ -11,9 +11,11 @@ from echoprint_server import \
     parsed_code_streamer, parsing_code_streamer, \
     decode_echoprint
 
-def dostuff(startTime, duration, jaccard=True, setInt=True, sinfl=True):
+def dostuff(startTime, interval, jaccard=True, setInt=True, sinfl=True):
     #Gets 1 minute (each chunk = 30 seconds, plus an additional 30 seconds = 1 minute) of echoprint slices from the episode list
-    jsons = getTimeChunk(episodePrints, startTime, duration)
+    # jsons = getTimeChunk(episodePrints, startTime, duration)
+    print(startTime)
+    jsons = getTimeChunk2(episodePrints, startTime)
     #decode and score the slices against the indexes
     jaccard_Scores = []
     set_int_Scores = []
@@ -78,6 +80,13 @@ def getTimeChunk(echoPrints, start, duration):
     jsons.reverse()
     return jsons
 
+def getTimeChunk2(echoPrints, start):
+    form = "cut_{0}_{1}.flac"
+    #get the index of the first decode we want
+    sj = [x for x in echoPrints if x["metadata"]["filename"].endswith(form.format(str(start), str(start+60)))]
+    return sj
+
+
 #enum for the types of queries we can retrieve data by
 class queryTypes(object):
     jaccard = "jaccards"
@@ -115,11 +124,10 @@ def confidenceMap(qtype):
     return confidence
 #Main
 def main():
-    #TODO - getTimeChunk won't work for the 60 second splits with 5 second intervals
     #load the episodes echoprints
     global episodePrints
-    episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/prints/prints.json')
-    #episodePrints605 = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/splits60-5/prints.json')
+    #episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/prints/prints.json')
+    episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/splits60-5/prints.json')
     #Get the index
     index_r1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r1_index.bin'
     index_r2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r2_index.bin'
@@ -137,7 +145,8 @@ def main():
     inverted_index = load_inverted_index([r2Ost2, r2Ost1, r2OpsEds, r1Ost1, r1Ost2])
 
     #formatting vars
-    durationPerChunk = 30
+    durationPerChunk = 60
+    chunkInterval = 5
     allChunks = []
     chunkTotal = len(episodePrints)
     form = "{0}{1}{2}"
@@ -147,8 +156,9 @@ def main():
 
     #main loop    
     for i in range(chunkTotal):
-        value = dostuff(i, 1, jaccard=True, setInt=False, sinfl=False)[whichToGet]
-        first = str(datetime.timedelta(seconds=i+30))
+        ival = i*chunkInterval#chunkInterval
+        value = dostuff(ival, chunkInterval, jaccard=True, setInt=False, sinfl=False)[whichToGet]
+        first = str(datetime.timedelta(seconds=ival+durationPerChunk))
         third = value[0][1]
         if(third < confidenceMap(whichToGet)):
             formed = form.format(first,"","")
