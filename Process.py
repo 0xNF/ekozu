@@ -6,7 +6,7 @@ import os,sys
 import shutil
 import argparse
 import NameFromIndex
-import RollingSplit
+from RollingSplit import split
 import collectAverages
 from subprocess import Popen, PIPE
 import subprocess
@@ -40,8 +40,10 @@ CWD = os.getcwd()
 #4. scan for data
 
 def ripAudio(Videos):
+    "Returns the full paths to the audio tracks that were ripped"
     print("Ripping Audio", end='\r')
     fs = []
+    audios = []
     for root,dirs,files in os.walk(Videos):
         for file in files:
             fs.append(os.path.join(root, file))
@@ -51,15 +53,40 @@ def ripAudio(Videos):
         os.makedirs(p)
         #ffmpeg -i InputVideo.mkv -vn -acodec copy AudioTrack.flac
         args = ("ffmpeg", "-loglevel", "quiet", "-i", val, "-vn", "-acodec", "copy", audiopath) 
-        print("Ripping Audio...{0} of {1}".format(str(idx+1), str(len(fs))), end='\r')
-        sys.stdout.flush() 
+        print("Ripping Audio...{0} of {1}".format(str(idx+1), str(len(fs))))
         subprocess.check_output(args)
+        #Splitting into chunks
+        print("Splitting Audio")
+        makeSplit(audiopath)
+        #creating prints.json
+        print("Producing Prints")
+        makePrintA(p)
     print("Ripping Audio...Done!".format(str(idx+1), str(len(fs))))
     sys.stdout.flush()
+    return audios
     
-def makeSplits(Videos):
-    print ("Making Video Splits")
+def makeSplits(AudioFiles):
+    print("Making Video Splits")
+    lenAud = str(len(AudioFiles))
+    for idx,val in enumerate(AudioFiles):
+        makeSplit(val)
+    print("Splitting Audio...Done!".format(str(idx+1), lenAud))
+    sys.stdout.flush()
+
+def makeSplit(audioFile):
+    dirname = os.path.join(EPISODESDIR, os.path.dirname(audioFile))
+    split(audioFile, 60, 5, dirname, silent=True)
+    os.remove(audioFile)
     return 0
+
+def makePrintA(spath):
+    splitsPath = os.path.join(spath, "splits")
+    args = ("./MakePrints.py", splitsPath)
+    subprocess.check_output(args)
+    shutil.move(os.path.join(splitsPath, "prints.json"), os.path.join(spath, "prints.json"))
+    shutil.rmtree(splitsPath)
+
+
 
 def makeEpisodePrints(Videos):
     "NYI"
@@ -77,7 +104,8 @@ def makeIndexes(Osts):
             tmpFile = os.path.join(TRACESDIR, dir.replace(' ','')+"_song_results.json")
             songs = []
             for root,dirs,files in os.walk(OSTDir):
-                    for file in files:                        
+                    for file in files:
+                        #if file is [MP3, FLAC, AAC, WAV, MP4, M4A]   ...      
                         songs.append(os.path.join(root,file))
             #Echoprint-codegen -s < song_list.txt > song_results.json
             f_name = dir.replace(' ','')+"_song_results.json"            
@@ -144,9 +172,10 @@ def main():
     TRACESDIR = os.path.join(BASEDIR, "tracepaths")
     INDEXDIR = os.path.join(BASEDIR, "indexes")
     
-    #makeFolders(args.series)
+    makeFolders(args.series)
     makeIndexes(args.osts)
-    #ripAudio(args.videos)
+    ripAudio(args.videos)
+    #makeSplits(audios)
     return 0
 
 if __name__ == "__main__":

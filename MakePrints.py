@@ -13,7 +13,6 @@ from AIUtils import natural_key,\
 #Constants
 FILEPATTERN = "cut_([0-9]+)_([0-9]+)\.(.*)"
 CWD = os.getcwd()
-#JSONFILE = os.path.join(CWD, "prints.json")
 
 #Primary functions
 def makePrints(songsList, inDir, outName="prints.json", outDir=os.getcwd()):
@@ -39,6 +38,11 @@ def listAudioFiles(inDir):
                 fulls.append(os.path.join(path,f))
     return natural_sort(fulls)
 
+def sortAndWrite(jfile):
+    js = sortJson(loadJsonFromFile(jfile), cmp=natural_key, key=lambda x: x["metadata"]["filename"])
+    with open(jfile, 'w') as f:
+        json.dump(js, f)
+
 #Main
 def main():
     #arg parsing
@@ -47,12 +51,11 @@ def main():
     args = parser.parse_args()
     abspath = os.path.abspath(args.indir)
     #Make prints
-    JSONFILE = os.path.join(abspath, "prints.json")
+    JSONFILE = os.path.join(abspath,"prints.json")
     makePrints(listAudioFiles(abspath), abspath, os.path.basename(JSONFILE))
     #Sort by filename and push back to disk
-    js = sortJson(loadJsonFromFile(JSONFILE), cmp=natural_key, key=lambda x: x["metadata"]["filename"])
-    with open(JSONFILE, 'w') as f:
-        json.dump(js, f)
+    sortAndWrite(JSONFILE)
+    
 
 if __name__ == "__main__":
     main()

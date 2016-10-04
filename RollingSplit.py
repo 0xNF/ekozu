@@ -26,7 +26,7 @@ def getTimes(totalseconds, duration, interval):
             times.append((start,end))
     return times
 
-def split(fname, duration, interval, outdir):
+def split(fname, duration, interval, outdir, silent=False):
     ftype = fname.split('.')[-1]
     abspath = os.path.join(os.path.abspath(outdir), "splits")
     try:
@@ -35,21 +35,18 @@ def split(fname, duration, interval, outdir):
     except OSError:
         if exception.errno != errno.EEXIST or exception.errno == ENOTDIR:
             raise
-
     totalSeconds = getAudioLength(fname)
     times = getTimes(totalSeconds, duration, interval)
     #Output updating vars
     counter = 0
     percent = 1/100.0
     blocks = int(len(times) * percent)
-    print("Blocks: " + str(blocks))
-
     fileFormatString = "cut_{0}_{1}.flac"
     #Real work
     for time in times:
         outpath = os.path.join(abspath, fileFormatString.format(time[0], time[1]))
         args = ("ffmpeg", "-loglevel", "quiet", "-i", fname, "-ss", str(time[0]), "-to", str(time[1]), "-async", "1", outpath)
-        if counter % blocks == 0:
+        if counter % blocks == 0 and not silent:
             print(str(counter+0.0 * percent) + "%")
         counter+=1
         subprocess.check_output(args)

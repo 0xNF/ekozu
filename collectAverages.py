@@ -128,9 +128,6 @@ def main():
     global episodePrints
     #episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/prints/prints.json')
     episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/splits60-5/prints.json')
-    #Get the index
-    index_r1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r1_index.bin'
-    index_r2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/indexes/r2_index.bin'
     #r2
     r2OpsEds = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OpEdInserts_index.bin'
     r2Ost1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OST1_index.bin'
@@ -141,7 +138,6 @@ def main():
     r1Ost2 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR1OST2_index.bin'
 
     global inverted_index
-    #inverted_index = load_inverted_index([index_r2,index_r1])
     inverted_index = load_inverted_index([r2Ost2, r2Ost1, r2OpsEds, r1Ost1, r1Ost2])
 
     #formatting vars
