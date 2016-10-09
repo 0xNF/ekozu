@@ -9,7 +9,7 @@ import subprocess
 import NameFromIndex
 import collectAverages
 from RollingSplit import split
-from MakePrints import makePrints
+from MakePrints import makePrints, sortAndWrite
 from AIUtils import \
     sortJson, loadJsonFromFile, natural_key
 from echoprint_server import \
@@ -89,7 +89,7 @@ def splitAudioTrack(audioFile, duration=60, overlap=5):
     For example, a track with duration=60 and overlap=5 would be split into chunks of 60 seconds, advancing 5 seconds each chunk. 
     The first split track would cover the timespan [0:00 - 1:00] and the second would cover [0:05 - 1:05] and so on"""
     dirname = os.path.join(EPISODESDIR, os.path.dirname(audioFile))
-    split(audioFile, duration, overlap, dirname, silent=True)
+    split(audioFile, duration, overlap, dirname, silent=False)
     os.remove(audioFile)
 
 def printsFromSplits(spath):
@@ -99,6 +99,7 @@ def printsFromSplits(spath):
     subprocess.check_output(args)
     shutil.move(os.path.join(splitsPath, "prints.json"), os.path.join(spath, "prints.json"))
     shutil.rmtree(splitsPath)
+
 def makeIndexes(Osts):
     """Creates indexes via the EchoPrint function MakeInvertedIndex and places these indexes under the folder "[series]/indexes/"" """
     print("Creating Indexes")
@@ -124,7 +125,7 @@ def makeIndexes(Osts):
             #... TODO ...
 
             #Sort song_codes by file name
-            sortByFilename(os.path.join(TRACESDIR, f_name))
+            sortAndWrite(os.path.join(TRACESDIR, f_name))
             #Load codes
             print("Decoding songs")
             js = loadJsonFromFile(os.path.join(TRACESDIR, f_name))
@@ -161,11 +162,6 @@ def makeIndexPrints(songsList, inDir, outName="prints.json", outDir=os.getcwd())
     f_out.close()
     f_in.close()
 
-def sortByFilename(file):
-    """Sort a prints.json by filename and push back to disk"""
-    js = sortJson(loadJsonFromFile(file), cmp=natural_key, key=lambda x: x["metadata"]["filename"])
-    with open(file, 'w') as f:
-        json.dump(js, f)
 
 def clean():
     """Removes everything except the song timings for each episode"""

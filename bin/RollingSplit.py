@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 import os
+import sys
 import subprocess
 import argparse
 
@@ -38,17 +40,18 @@ def split(fname, duration, interval, outdir, silent=False):
     totalSeconds = getAudioLength(fname)
     times = getTimes(totalSeconds, duration, interval)
     #Output updating vars
-    counter = 0
-    percent = 1/100.0
-    blocks = int(len(times) * percent)
+    total = len(times)
+    point = total/100.0
+    increment = total/20
+    
     fileFormatString = "cut_{0}_{1}.flac"
     #Real work
-    for time in times:
+    for idx,time in enumerate(times):
         outpath = os.path.join(abspath, fileFormatString.format(time[0], time[1]))
         args = ("ffmpeg", "-loglevel", "quiet", "-i", fname, "-ss", str(time[0]), "-to", str(time[1]), "-async", "1", outpath)
-        if counter % blocks == 0 and not silent:
-            print(str(counter+0.0 * percent) + "%")
-        counter+=1
+        if idx % (5 * point) == 0.0 and not silent:
+            sys.stdout.write("\r[" + "=" * (idx / increment) +  " " * ((total - idx)/ increment) + "]" +  str(idx / point) + "%")
+            sys.stdout.flush()
         subprocess.check_output(args)
 
 

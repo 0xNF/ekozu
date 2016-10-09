@@ -38,9 +38,10 @@ def listAudioFiles(inDir):
                 fulls.append(os.path.join(path,f))
     return natural_sort(fulls)
 
-def sortAndWrite(jfile):
-    js = sortJson(loadJsonFromFile(jfile), cmp=natural_key, key=lambda x: x["metadata"]["filename"])
-    with open(jfile, 'w') as f:
+def sortAndWrite(file):
+    """Sort a prints.json by filename and push back to disk"""
+    js = sortJson(loadJsonFromFile(file), cmp=natural_key, key=lambda x: x["metadata"]["filename"])
+    with open(file, 'w') as f:
         json.dump(js, f)
 
 #Main
