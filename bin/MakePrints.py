@@ -44,6 +44,11 @@ def sortAndWrite(file):
     with open(file, 'w') as f:
         json.dump(js, f)
 
+def makeWithPath(path, fname):
+    abspath = os.path.abspath(path)
+    files = listAudioFiles(abspath)
+    makePrints(files, abspath, outName=fname)    
+
 #Main
 def main():
     #arg parsing

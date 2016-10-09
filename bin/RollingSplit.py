@@ -41,7 +41,7 @@ def split(fname, duration, interval, outdir, silent=False):
     times = getTimes(totalSeconds, duration, interval)
     #Output updating vars
     total = len(times)
-    point = total/100.0
+    point = total/100
     increment = total/20
     
     fileFormatString = "cut_{0}_{1}.flac"
@@ -49,7 +49,7 @@ def split(fname, duration, interval, outdir, silent=False):
     for idx,time in enumerate(times):
         outpath = os.path.join(abspath, fileFormatString.format(time[0], time[1]))
         args = ("ffmpeg", "-loglevel", "quiet", "-i", fname, "-ss", str(time[0]), "-to", str(time[1]), "-async", "1", outpath)
-        if idx % (5 * point) == 0.0 and not silent:
+        if idx % (5 * point) == 0 and not silent:
             sys.stdout.write("\r[" + "=" * (idx / increment) +  " " * ((total - idx)/ increment) + "]" +  str(idx / point) + "%")
             sys.stdout.flush()
         subprocess.check_output(args)

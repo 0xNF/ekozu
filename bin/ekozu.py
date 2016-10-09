@@ -9,7 +9,7 @@ import subprocess
 import NameFromIndex
 import collectAverages
 from RollingSplit import split
-from MakePrints import makePrints, sortAndWrite
+from MakePrints import makeWithPath, sortAndWrite
 from AIUtils import \
     sortJson, loadJsonFromFile, natural_key
 from echoprint_server import \
@@ -18,7 +18,8 @@ from echoprint_server import \
     create_inverted_index, decode_echoprint
 
 #TODO
-#1. refactor MakePrints to be able to be imported instead of caled
+#1. Keep log of completed/left-to-do episodes so we can pickup from an arbitrary episode without repeating work.
+    #command line option to start at position X
 #2. make collectAverages...better. Form able to be uploaded to github
 #3. make setup.py
 
@@ -95,9 +96,15 @@ def splitAudioTrack(audioFile, duration=60, overlap=5):
 def printsFromSplits(spath):
     """Produces a prints.json file containing the EchoPrint decodes of each each track contained in the path {spath}"""
     splitsPath = os.path.join(spath, "splits")
-    args = ("./bin/MakePrints.py", splitsPath) #TODO refactor MakePrints.py so we can import the functions instead of calling to it from cmd
-    subprocess.check_output(args)
-    shutil.move(os.path.join(splitsPath, "prints.json"), os.path.join(spath, "prints.json"))
+    # args = ("./bin/MakePrints.py", splitsPath) #TODO refactor MakePrints.py so we can import the functions instead of calling to it from cmd
+    # subprocess.check_output(args)
+    
+    fname = "prints.json"
+    pathA = os.path.join(splitsPath, fname)
+    pathB = os.path.join(spath, fname)
+    makeWithPath(splitsPath, fname)
+    sortAndWrite(pathA)
+    shutil.move(pathA, pathB)
     shutil.rmtree(splitsPath)
 
 def makeIndexes(Osts):
@@ -185,6 +192,7 @@ def main():
     parser.add_argument("osts", type=str, help="Path to the OST files")
     args = parser.parse_args()
 
+    #Error collection for mistyped or invalid input
     Errors = []
     if not os.path.exists(args.videos):
         Errors.append("Error - Videos path \"{0}\" does not exist. Please enter a valid path and try again.".format(args.videos))
@@ -197,17 +205,25 @@ def main():
             print(error)
         return 1
 
+    #structure creation
     global BASEDIR, EPISODESDIR, TRACESDIR, INDEXDIR
     BASEDIR = os.path.join(CWD,args.series)
     EPISODESDIR = os.path.join(BASEDIR, "episodes")
     TRACESDIR = os.path.join(BASEDIR, "tracepaths")
     INDEXDIR = os.path.join(BASEDIR, "indexes")
     
+    #Real work
     makeFolders(args.series)
     makeIndexes(args.osts)
     ripAudio(args.videos)
+
+    #Producing timings
+    MakeTimings(EPISODESDIR, INDEXDIR)
+
+    #Cleanup
     if not args.persist:
         clean()
+
     return 0
 
 if __name__ == "__main__":
