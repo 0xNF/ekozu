@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import print_function
-import json
-import os,sys
+import os
+import sys
 import shutil
 import argparse
 import subprocess
-import NameFromIndex
-import collectAverages
+from MakeTimings import MakeTimings
 from RollingSplit import split
 from MakePrints import makeWithPath, sortAndWrite
 from AIUtils import \
@@ -18,11 +17,10 @@ from echoprint_server import \
     create_inverted_index, decode_echoprint
 
 #TODO
-#1. Keep log of completed/left-to-do episodes so we can pickup from an arbitrary episode without repeating work.
-    #command line option to start at position X
 #2. make collectAverages...better. Form able to be uploaded to github
 #3. make setup.py
-
+#4. Keep log of completed/left-to-do episodes so we can pickup from an arbitrary episode without repeating work.
+    #command line option to start at position X
 
 #Constants
 CWD = os.getcwd()
@@ -95,10 +93,7 @@ def splitAudioTrack(audioFile, duration=60, overlap=5):
 
 def printsFromSplits(spath):
     """Produces a prints.json file containing the EchoPrint decodes of each each track contained in the path {spath}"""
-    splitsPath = os.path.join(spath, "splits")
-    # args = ("./bin/MakePrints.py", splitsPath) #TODO refactor MakePrints.py so we can import the functions instead of calling to it from cmd
-    # subprocess.check_output(args)
-    
+    splitsPath = os.path.join(spath, "splits")    
     fname = "prints.json"
     pathA = os.path.join(splitsPath, fname)
     pathB = os.path.join(spath, fname)

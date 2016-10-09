@@ -16,3 +16,12 @@ from echoprint_server import \
     load_inverted_index, query_inverted_index, \
     parsed_code_streamer, parsing_code_streamer, \
     create_inverted_index, decode_echoprint
+
+def MakeTimings(episodeDir, indexDir):
+    return 0
+
+def main():
+    return 0
+
+if __name__ == "__main__":
+    main()
