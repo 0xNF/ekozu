@@ -7,7 +7,6 @@ import os,sys
 import shutil
 import argparse
 import subprocess
-import NameFromIndex
 import collectAverages
 from RollingSplit import split
 from MakePrints import makeWithPath, sortAndWrite
@@ -52,29 +51,32 @@ def matchDecodes(prints, invertedIndex, startTime, interval, duration, queryType
     retDict["frequencies"] = freqs
     return retDict
 
-def MakeTimings(printsFiles, invertedIndex, queryType=queryTypes.jaccard, duration=60, interval=5):
+def MakeTimings(printsFiles, invertedIndex, mergedIndexes, queryType=queryTypes.jaccard, duration=60, interval=5):
     whichToGet = queryType
-    for echo in printsFiles:
+    for idx,echo in enumerate(printsFiles):
+        print("Producing timings for item {0} out of {1}".format(str(idx+1), str(len(printsFiles))))
         baseDir = os.path.dirname(echo)
-        echoTimings = makeEpisodeTiming(echo, invertedIndex, queryType, duration, interval)
+        echoTimings = makeEpisodeTiming(echo, invertedIndex, mergedIndexes, queryType, duration, interval)
         with open(os.path.join(baseDir, "timings.txt"), 'w') as f:
             f.writelines("\n".join(echoTimings))
     return 0
 
-def makeEpisodeTiming(echofile, invertedIndex, queryType, duration, interval):
+def makeEpisodeTiming(echofile, invertedIndex, mergedIndexes, queryType, duration, interval):
     form = "{0}{1}{2}"
     prints = loadJsonFromFile(echofile)
     timings = []
     for i in range(len(prints)):
         formed = ""
         ival = i*interval
-        value = matchDecodes(prints, invertedIndex, ival, interval, duration, queryType)#TODO map DoStuff from averages.py
+        value = matchDecodes(prints, invertedIndex, ival, interval, duration, queryType)
         first = str(datetime.timedelta(seconds=ival+duration))
-        third = value["sums"][0][1]
+        v = value["sums"]
+        print(v[0][0]) #position in merged index = song name
+        third = v[0][1] #confidence value
         if(third < confidenceMap(queryType)):
             formed = form.format(first, "","")
         else:
-            second = ""#IndexNumberToName(...) #TODO this function DNE yo
+            second = NameFromIndex(mergedIndexes, v[0][0], fullPath=False)#IndexNumberToName(...) #TODO this function DNE yo
             formed = form.format(first.ljust(15),second.ljust(55),third)
         timings.append(formed)
     return timings
@@ -128,14 +130,35 @@ def makeSumsAndFrequencies(scores, totalFrequencies):
                 sums[subi] = lst["score"]
                 frequencies[subi] = 1
     return (makeOrdered(sums), makeOrdered(frequencies))
+
+def mergeIndexs(indexs):
+    jobj = []
+    jobjtags = []
+    for file in indexs:
+        contents = ""
+        with open(file, 'r') as f:
+            contents = "".join(f.readlines())
+            jtemp = json.loads(contents)
+            jtemp = sorted(jtemp, key=lambda x: x["metadata"]["filename"])
+            maxTag = 0 if len(jobj) is 0 else len(jtemp)
+            for item in jtemp:
+                jobj.append(item)
+    jj = jobj
+    return jj
+
+def NameFromIndex(files, index, fullPath=True):
+    text = files[index]["metadata"]["filename"]
+    if fullPath:
+        return text
+    else:
+        return os.path.basename(text)
 #Main
 def main():
     OK = True
     parser = argparse.ArgumentParser()
     parser.add_argument("indexes", help="Compiled index (.bin) to match decoded echoprints against")
     parser.add_argument("echos", help="Input directory of echoprints to match")
-    args = parser.parse_args()
-    
+    args = parser.parse_args()    
     #Error collection for mistyped or invalid input
     Errors = []
     if not os.path.exists(args.indexes):
@@ -148,7 +171,6 @@ def main():
         for error in Errors:
             print(error)
         return 1
-
     #Getting episode files
     printsFiles = []
     for path,dirs,files in os.walk(args.echos):
@@ -160,19 +182,18 @@ def main():
 
     #Creating the inverted index and the songToIndex namelist
     indexList = []
-    nameIndex = []
+    songResultList = [] #for matching index position to song name
     for path,dirs,files in os.walk(args.indexes):
         for f in files:
-            if(f.endswith(".bin")):
+            if(f.endswith(".bin")):                
                 indexList.append(os.path.join(path,f))
-            elif(f.endswith(".json")):
-                nameIndex.append(os.path.join(path, f))
-    print("Using the following indexes:")
-    for i in indexList:
-        print(os.path.basename(i))
+                bname = os.path.basename(f).split('_')[0]
+                bname+="_song_results.json"
+                songResultList.append(os.path.join(path, bname))
     invertedIndex = load_inverted_index(indexList)
+    mergedIndexes = mergeIndexs(songResultList)
     #Create Timings
-    MakeTimings(printsFiles, invertedIndex, queryType=queryTypes.jaccard)
+    MakeTimings(printsFiles, invertedIndex, mergedIndexes, queryType=queryTypes.jaccard)
     
     return 0
 

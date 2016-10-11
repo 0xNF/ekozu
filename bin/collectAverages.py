@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from random import shuffle
 import argparse
 import json
 import datetime
@@ -126,8 +127,8 @@ def main():
     global episodePrints
     #episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/prints/prints.json')
     # episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/testData/geass/episodetracks/r2_01/splits60-5/prints.json')
-    episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/Lost in Translation/episodes/Lost.in.Translation.2003.BluRay.720p.x264.YIFY.mkv/prints.json')
-
+    #episodePrints = loadJsonFromFile('/mnt/c/Users/Djori/Documents/projects/ekozu/Lost in Translation/episodes/Lost.in.Translation.2003.BluRay.720p.x264.YIFY.mkv/prints.json')
+    episodePrints = loadJsonFromFile("/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/episodes/[Coalgirls]_Code_Geass_R2_01_(1920x1080_Blu-ray_FLAC)_[54DA8E43].mkv/prints.json")
     #r2
     r2OpsEds = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OpEdInserts_index.bin'
     r2Ost1 = '/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/indexes/CodeGeassR2OST1_index.bin'
@@ -140,9 +141,23 @@ def main():
     #LIT
     lit = "/mnt/c/Users/Djori/Documents/projects/ekozu/Lost in Translation/indexes/LostInTranslationOST_index.bin"
 
+    ddict = {
+        #r1
+        "r1Ost1":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OST1_song_results.json',
+        "r1Ost2":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OST2_song_results.json',
+        "r1OpsEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OpEdInserts_song_results.json',
+        #r2
+        "r2OpsEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OpEdInserts_song_results.json',
+        "r2Ost1":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OST1_song_results.json',
+        "r2Ost2":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OST2_song_results.json',
+    }
+    ilist = [r2OpsEds,r2Ost1,r2Ost2,r1OpsEds,r1Ost1,r1Ost2]
+    fmapps = [fmaps["r2OpsEds"],fmaps["r2Ost1"], fmaps["r2Ost2"], fmaps["r1OpsEds"], fmaps["r1Ost1"],fmaps["r1Ost2"]]
+    #shuffle(ilist)
+    #shuffle(fmapps)
     global inverted_index
-    # inverted_index = load_inverted_index([r2Ost2, r2Ost1, r2OpsEds, r1Ost1, r1Ost2])
-    inverted_index = load_inverted_index([lit])
+    inverted_index = load_inverted_index(ilist)
+    #inverted_index = load_inverted_index([lit])
 
     #formatting vars
     durationPerChunk = 60   
@@ -163,9 +178,7 @@ def main():
         if(third < confidenceMap(whichToGet)):
             formed = form.format(first,"","")
         else:
-            #second = NameFromIndex([fmaps["r2"],fmaps["r1"]], value[0][0], fullPath=False)
-            #second = NameFromIndex([fmaps["r2Ost2"], fmaps["r2Ost1"], fmaps["r2OpsEds"], fmaps["r1Ost1"], fmaps["r1Ost2"]], value[0][0], fullPath=False)
-            second = NameFromIndex([fmaps["lit"]], value[0][0], fullPath=False)
+            second = NameFromIndex(fmapps, value[0][0], fullPath=False)
             formed = form.format(first.ljust(15),second.ljust(55),third)
         songsByTheChunk.append(formed)
     print("\n".join(songsByTheChunk))

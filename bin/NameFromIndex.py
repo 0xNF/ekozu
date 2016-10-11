@@ -10,7 +10,7 @@ fmaps = {
     #r1
     "r1Ost1":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OST1_song_results.json',
     "r1Ost2":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OST2_song_results.json',
-    "r1OpEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OpEdInserts_song_results.json',
+    "r1OpsEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR1OpEdInserts_song_results.json',
     #r2
     "r2OpsEds":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OpEdInserts_song_results.json',
     "r2Ost1":'/mnt/c/Users/Djori/Documents/projects/ekozu/code geass/tracepaths/CodeGeassR2OST1_song_results.json',
