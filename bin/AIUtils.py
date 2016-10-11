@@ -17,6 +17,11 @@ def loadJsonFromFile(file):
         js = json.load(f)
     return js
 
+#Sort dictionary
+def makeOrdered(iterable, reverse=True):
+    srtd = sorted(iterable, key=iterable.get, reverse=reverse)
+    return [(x,iterable[x]) for x in srtd]
+
 #Natural sorting utility section
 def __nat_alphaNumkey():
     convert = lambda text: int(text) if text.isdigit() else text.lower() 

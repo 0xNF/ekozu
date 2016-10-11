@@ -3,7 +3,7 @@
 import argparse
 import json
 import datetime
-from AIUtils import loadJsonFromFile
+from AIUtils import loadJsonFromFile, makeOrdered
 from NameFromIndex import\
     fmaps, NameFromIndex
 from echoprint_server import \
@@ -60,9 +60,7 @@ def makeSumsAndFrequencies(scores, totalFrequencies):
                 frequencies[subi] = 1
     return (makeOrdered(sums), makeOrdered(frequencies))
 
-def makeOrdered(iterable, reverse=True):
-    srtd = sorted(iterable, key=iterable.get, reverse=reverse)
-    return [(x,iterable[x]) for x in srtd]
+
 def getTimeChunk(echoPrints, start, duration):
     #set filename format vars
     form = "cut_{0}_{1}.flac"
@@ -147,7 +145,7 @@ def main():
     inverted_index = load_inverted_index([lit])
 
     #formatting vars
-    durationPerChunk = 60
+    durationPerChunk = 60   
     chunkInterval = 5
     allChunks = []
     chunkTotal = len(episodePrints)

@@ -103,7 +103,7 @@ def printsFromSplits(spath):
     shutil.rmtree(splitsPath)
 
 def makeIndexes(Osts):
-    """Creates indexes via the EchoPrint function MakeInvertedIndex and places these indexes under the folder "[series]/indexes/"" """
+    """Creates indexes via the EchoPrint function MakeInvertedIndex and places these indexes under the folder "[series]/indexes/" """
     print("Creating Indexes")
     for path,dirs,files in os.walk(Osts):
         for dir in dirs:
@@ -123,15 +123,12 @@ def makeIndexes(Osts):
             f_name = dir.replace(' ','')+"_song_results.json"            
             makeIndexPrints(songs, os.path.join(path,dir), outName=f_name, outDir=TRACESDIR)
 
-            #purge songs that coudln't be decoded..
-            #... TODO ...
-
             #Sort song_codes by file name
             sortAndWrite(os.path.join(TRACESDIR, f_name))
             #Load codes
             print("Decoding songs")
             js = loadJsonFromFile(os.path.join(TRACESDIR, f_name))
-            withCode_A = [decode_echoprint(str(x["code"]))[1] for x in js if "code" in x]
+            withCode_A = [decode_echoprint(str(x["code"]))[1] for x in js if "code" in x] #Decoding errors not included
             codes = []
             for codelist in withCode_A:
                 sList = []

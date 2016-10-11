@@ -6,10 +6,6 @@ import sys
 import subprocess
 import argparse
 
-#Constants
-FILEPATTERN = "cut_([0-9]+)_([0-9]+)\.(.*)"
-CWD = os.getcwd()
-
 def getAudioLength(fname):
     args = ("ffprobe", "-show_entries", "format=duration", "-loglevel", "quiet", "-i", fname)
     output = subprocess.check_output(args)
@@ -42,14 +38,13 @@ def split(fname, duration, interval, outdir, silent=False):
     #Output updating vars
     total = len(times)
     point = total/100
-    increment = total/20
-    
+    increment = total/20    
     fileFormatString = "cut_{0}_{1}.flac"
     #Real work
     for idx,time in enumerate(times):
         outpath = os.path.join(abspath, fileFormatString.format(time[0], time[1]))
         args = ("ffmpeg", "-loglevel", "quiet", "-i", fname, "-ss", str(time[0]), "-to", str(time[1]), "-async", "1", outpath)
-        if idx % (5 * point) == 0 and not silent:
+        if not silent and idx % (5 * point) == 0:
             sys.stdout.write("\r[" + "=" * (idx / increment) +  " " * ((total - idx)/ increment) + "]" +  str(idx / point) + "%")
             sys.stdout.flush()
         subprocess.check_output(args)

@@ -30,13 +30,8 @@ def mergeIndexs(indexs):
             jtemp = sorted(jtemp, key=lambda x: x["metadata"]["filename"])
             maxTag = 0 if len(jobj) is 0 else len(jtemp)
             for item in jtemp:
-                #if(item["tag"] in jobjtags):
-                    #print("Tag Existed! {0}, replaced with {1}.".format(str(item["tag"]), str((item["tag"]+maxTag))))
-                #    item["tag"] += maxTag
                 jobj.append(item)
-                #jobjtags.append(item["tag"])
-                #x["metadata"]["filename"]
-    jj = jobj#sorted(jobj, key=lambda x: x["tag"], reverse=True)
+    jj = jobj
     return jj
 
 def getIndex(indexs, i):
@@ -62,9 +57,5 @@ def main():
         else:
             idx = int(argv[1])
             print(NameFromIndex(files, idx))
-
-
-        #print("\n".join([x["metadata"]["filename"] for x in mergeIndexs(files)]))
-
 if __name__ == "__main__":
     main()
