@@ -158,11 +158,15 @@ def main():
             if os.path.exists(pjson):
                 printsFiles.append(pjson)
 
-    #Creating the inverted index
+    #Creating the inverted index and the songToIndex namelist
     indexList = []
+    nameIndex = []
     for path,dirs,files in os.walk(args.indexes):
         for f in files:
-            indexList.append(os.path.join(path,f))
+            if(f.endswith(".bin")):
+                indexList.append(os.path.join(path,f))
+            elif(f.endswith(".json")):
+                nameIndex.append(os.path.join(path, f))
     print("Using the following indexes:")
     for i in indexList:
         print(os.path.basename(i))

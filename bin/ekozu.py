@@ -137,6 +137,7 @@ def makeIndexes(Osts):
                 codes.append(",".join(sList))
             print("Creating index at" + indexFile)  
             create_inverted_index(parsed_code_streamer(codes), indexFile)
+            shutil.move(os.path.join(TRACESDIR, f_name), os.path.join(INDEXDIR, f_name))
     print("Finished creating indexes")
 
 #Utility Functions
