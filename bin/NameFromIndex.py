@@ -21,18 +21,16 @@ fmaps = {
 
 def mergeIndexs(indexs):
     jobj = []
-    jobjtags = []
     for idx in indexs:
         contents = ""
         with open(idx, 'r') as f:
             contents = "".join(f.readlines())
             jtemp = json.loads(contents)
-            jtemp = sorted(jtemp, key=lambda x: x["metadata"]["filename"])
-            maxTag = 0 if len(jobj) is 0 else len(jtemp)
+            #jtemp = sorted(jtemp, key=lambda x: x["metadata"]["filename"])
             for item in jtemp:
                 jobj.append(item)
     jj = jobj
-    return jj
+    return jobj
 
 def getIndex(indexs, i):
     jobj = mergeIndexs(indexs)

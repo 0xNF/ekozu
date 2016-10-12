@@ -17,10 +17,11 @@ from echoprint_server import \
     create_inverted_index, decode_echoprint
 
 #TODO
-#2. make collectAverages...better. Form able to be uploaded to github
+#2. make MakeTimings.py importable
 #3. make setup.py
 #4. Keep log of completed/left-to-do episodes so we can pickup from an arbitrary episode without repeating work.
     #command line option to start at position X
+#5. Maybe index creation should just make a jumbo index and use it instead
 
 #Constants
 CWD = os.getcwd()
@@ -52,7 +53,7 @@ Codecs = ['avs', 'cavs', 'aac', 'aac_latm', 'adpcm_vima',\
 #3. make episode prints (1 per split from previous step)
 #4. scan for data
 
-def ripAudio(Videos):
+def RipAndPrint(Videos):
     print("Ripping Audio", end='\r')    
     fs = []
     for root,dirs,files in os.walk(Videos):
@@ -198,6 +199,8 @@ def main():
             print(error)
         return 1
 
+    persist = args.persist
+
     #structure creation
     global BASEDIR, EPISODESDIR, TRACESDIR, INDEXDIR
     BASEDIR = os.path.join(CWD,args.series)
@@ -208,13 +211,17 @@ def main():
     #Real work
     makeFolders(args.series)
     makeIndexes(args.osts)
-    ripAudio(args.videos)
+    RipAndPrint(args.videos)
 
     #Producing timings
-    MakeTimings(EPISODESDIR, INDEXDIR)
-
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    mtime = os.path.join(dir_path, "MakeTimings.py")
+    args = (mtime, INDEXDIR, EPISODESDIR)
+    subprocess.check_output(args)
+    #MakeTimings(printsFiles, invertedIndex, mergedIndexes)
+    
     #Cleanup
-    if not args.persist:
+    if not persist:
         clean()
 
     return 0

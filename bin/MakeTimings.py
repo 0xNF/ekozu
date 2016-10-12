@@ -71,7 +71,7 @@ def makeEpisodeTiming(echofile, invertedIndex, mergedIndexes, queryType, duratio
         value = matchDecodes(prints, invertedIndex, ival, interval, duration, queryType)
         first = str(datetime.timedelta(seconds=ival+duration))
         v = value["sums"]
-        print(v[0][0]) #position in merged index = song name
+        #print(v[0][0]) #position in merged index = song name
         third = v[0][1] #confidence value
         if(third < confidenceMap(queryType)):
             formed = form.format(first, "","")
@@ -133,18 +133,15 @@ def makeSumsAndFrequencies(scores, totalFrequencies):
 
 def mergeIndexs(indexs):
     jobj = []
-    jobjtags = []
     for file in indexs:
         contents = ""
         with open(file, 'r') as f:
             contents = "".join(f.readlines())
             jtemp = json.loads(contents)
             jtemp = sorted(jtemp, key=lambda x: x["metadata"]["filename"])
-            maxTag = 0 if len(jobj) is 0 else len(jtemp)
             for item in jtemp:
                 jobj.append(item)
-    jj = jobj
-    return jj
+    return jobj
 
 def NameFromIndex(files, index, fullPath=True):
     text = files[index]["metadata"]["filename"]
