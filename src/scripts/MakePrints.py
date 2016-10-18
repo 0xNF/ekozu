@@ -11,7 +11,7 @@ from AIUtils import natural_key,\
                     loadJsonFromFile
 
 #Constants
-FILEPATTERN = "cut_([0-9]+)_([0-9]+)\.(.*)"
+FILEPATTERN = r"cut_([0-9]+)_([0-9]+)\.(.*)"
 CWD = os.getcwd()
 
 #Primary functions
@@ -57,11 +57,10 @@ def main():
     args = parser.parse_args()
     abspath = os.path.abspath(args.indir)
     #Make prints
-    JSONFILE = os.path.join(abspath,"prints.json")
-    makePrints(listAudioFiles(abspath), abspath, os.path.basename(JSONFILE))
+    jsonfile = os.path.join(abspath, "prints.json")
+    makePrints(listAudioFiles(abspath), abspath, os.path.basename(jsonfile))
     #Sort by filename and push back to disk
-    sortAndWrite(JSONFILE)
-    
+    sortAndWrite(jsonfile)
 
 if __name__ == "__main__":
     main()
